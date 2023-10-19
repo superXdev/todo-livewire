@@ -6,6 +6,7 @@ use App\Models\Todo;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Rule;
+use Throwable;
 
 class TodoList extends Component
 {
@@ -16,6 +17,11 @@ class TodoList extends Component
 
     public $keyword;
 
+    public $editingID;
+
+    #[Rule('required|string|max:120')]
+    public $editingTitle;
+
     public function create()
     {
         $validated = $this->validateOnly('title');
@@ -25,6 +31,62 @@ class TodoList extends Component
         $this->reset('title');
 
         session()->flash('success', 'Todo was saved!');
+    }
+
+    public function delete($id)
+    {
+        try {
+            Todo::findOrfail($id)->delete();
+        } catch(Throwable $e) {
+            session()->flash('error', 'Failed to delete');
+            return;
+        }
+        
+    }
+
+    public function toggle($id)
+    {
+        try {
+            $todo = Todo::findOrfail($id);
+            $todo->completed = !$todo->completed;
+            $todo->save();
+        } catch(Throwable $e) {
+            session()->flash('error', 'Failed to check');
+            return;
+        }
+        
+    }
+
+    public function edit($id)
+    {
+        try {
+            $this->editingID = $id;
+            $this->editingTitle = Todo::findOrfail($id)->title;
+        } catch(Throwable $e) {
+            session()->flash('error', 'Failed to fetch');
+            return;
+        }
+        
+    }
+
+    public function cancelEdit()
+    {
+        $this->reset(['editingTitle', 'editingID']);
+    }
+
+    public function update()
+    {
+        try {
+            $this->validateOnly('editingTitle');
+
+            Todo::findOrfail($this->editingID)->update(['title' => $this->editingTitle]);
+
+            $this->cancelEdit();
+        } catch(Throwable $e) {
+            session()->flash('error', 'Failed to update');
+            return;
+        }
+        
     }
 
     public function render()
