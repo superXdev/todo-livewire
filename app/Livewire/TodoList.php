@@ -24,13 +24,18 @@ class TodoList extends Component
 
     public function create()
     {
-        $validated = $this->validateOnly('title');
-        
-        Todo::create($validated);
+        try {
+            $validated = $this->validateOnly('title');
+            
+            Todo::create($validated);
 
-        $this->reset('title');
+            $this->reset('title');
 
-        session()->flash('success', 'Todo was saved!');
+            session()->flash('success', 'Todo was saved!');
+        } catch(Throwable $e) {
+            session()->flash('error', 'Failed to create');
+            return;
+        }
     }
 
     public function delete($id)
