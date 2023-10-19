@@ -9,7 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body>
+<body class="bg-gray-100">
     <div id="head" class="flex border-blue-800 border-t-2">
         <div class="w-full">
             <header class="flex bg-white justify-between h-20 border-b border-b-gray-200 items-center px-6">
