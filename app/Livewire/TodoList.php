@@ -4,12 +4,17 @@ namespace App\Livewire;
 
 use App\Models\Todo;
 use Livewire\Component;
+use Livewire\WithPagination;
 use Livewire\Attributes\Rule;
 
 class TodoList extends Component
 {
+    use WithPagination;
+
     #[Rule('required|string|max:120')]
     public $title;
+
+    public $keyword;
 
     public function create()
     {
@@ -24,6 +29,8 @@ class TodoList extends Component
 
     public function render()
     {
-        return view('livewire.todo-list');
+        return view('livewire.todo-list', [
+            'todos' => Todo::latest()->where('title', 'like', "%{$this->keyword}%")->paginate(5)
+        ]);
     }
 }
